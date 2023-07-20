@@ -8,7 +8,7 @@ const sequelize = new Sequelize('trongthuy', 'root', '123456', {
 let connectDB = async () => {
     try {
         await sequelize.authenticate();
-        console.log('Success.');
+        console.log('Success connect to database.');
     } catch (error) {
         console.error('Error to the datebase.', error);
     }
