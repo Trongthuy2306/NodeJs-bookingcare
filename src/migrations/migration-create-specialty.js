@@ -2,6 +2,7 @@
 module.exports = {
     up: async (queryInterface, Sequelize) => {
         await queryInterface.createTable('specialties', {
+            // name: DataTypes.STRING,
             // description: DataTypes.TEXT,
             // image: DataTypes.STRING,
             id: {
@@ -9,6 +10,9 @@ module.exports = {
                 autoIncrement: true,
                 primaryKey: true,
                 type: Sequelize.INTEGER
+            },
+            name: {
+                type: Sequelize.TEXT
             },
             description: {
                 type: Sequelize.TEXT
