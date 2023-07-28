@@ -18,6 +18,8 @@
 </head>
 
 <body>
+    <a href="/crud" class="btn btn-primary">Add</a>
+
     <table style="width: 100%;">
         <tr>
             <th>Email</th>
@@ -44,7 +46,7 @@
             </td>
             <td>
                 <a href="/edit-crud?id=<%=dataTable[i].id%>" class="btn btn-primary">Edit</a>
-                <a class="btn btn-danger">Delete</a>
+                <a href="/delete-crud?id=<%=dataTable[i].id%>" class="btn btn-danger">Delete</a>
 
             </td>
         </tr>
