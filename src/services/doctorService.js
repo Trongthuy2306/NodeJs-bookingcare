@@ -52,8 +52,7 @@ let getAllDoctors = () => {
 let saveDetailInforDoctors = (inputData) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!inputData.doctorId || !inputData.contentHTML || !inputData.contentMarkdown
-                || !inputData.contentMarkdown || !inputData.action) {
+            if (!inputData.doctorId) {
                 resolve({
                     errCode: 1,
                     message: 'Missing parameter!'
