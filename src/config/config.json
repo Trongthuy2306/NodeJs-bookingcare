@@ -1,8 +1,8 @@
 {
   "development": {
     "username": "root",
-    "password": "123456",
-    "database": "trongthuy",
+    "password": null,
+    "database": "doctorcare",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "logging": false,

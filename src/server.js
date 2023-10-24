@@ -9,8 +9,8 @@ require('dotenv').config();
 let app = express();
 app.use(cors({ credentials: true, origin: true }));
 //config app
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json({ limit: '50mb' }))
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 
 viewEngine(app);
 initWebRoutes(app);
@@ -21,5 +21,5 @@ let port = process.env.PORT || 8000;
 //port === undefined => port =8000
 app.listen(port, () => {
     //callback
-    console.log("Back-end by trong thuy Port :" + port)
+    console.log("Back-end by Trong Thuy Port :" + port)
 });
