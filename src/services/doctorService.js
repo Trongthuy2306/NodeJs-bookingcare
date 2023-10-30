@@ -1,5 +1,9 @@
 
 import db from '../models/index';
+require('dotenv').config();
+import _ from 'lodash'
+
+const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE
 
 let getTopDoctorHome = (limitInput) => {
     return new Promise(async (resolve, reject) => {
@@ -70,15 +74,14 @@ let saveDetailInforDoctors = (inputData) => {
                         where: { doctorId: inputData.doctorId },
                         raw: false
                     })
-                }
-                if (doctorMarkdown) {
-                    doctorMarkdown.contentHTML = inputData.contentHTML,
-                        doctorMarkdown.contentMarkdown = inputData.contentMarkdown,
-                        doctorMarkdown.description = inputData.description,
+                    if (doctorMarkdown) {
+                        doctorMarkdown.contentHTML = inputData.contentHTML;
+                        doctorMarkdown.contentMarkdown = inputData.contentMarkdown;
+                        doctorMarkdown.description = inputData.description;
                         doctorMarkdown.updateAt = new Date(),
-                        await doctorMarkdown.save()
+                            await doctorMarkdown.save()
+                    }
                 }
-
             }
             resolve({
                 errCode: 0,
@@ -134,10 +137,100 @@ let getDetailDoctorById = (inputId) => {
     })
 }
 
+let bulkCreateSchedule = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            console.log('check data bulk', data);
+            if (!data.arrSchedule || !data.doctorId || !data.formatedDate) {
+                resolve({
+                    errCode: -1,
+                    errMessage: 'Missing require param !'
+                })
+            } else {
+                let schedule = data.arrSchedule;
+                if (schedule && schedule.length > 0) {
+                    schedule = schedule.map(item => {
+                        item.maxNumber = MAX_NUMBER_SCHEDULE;
+                        return item;
+                    })
+                }
+                //get all existing data
+                let existing = await db.Schedule.findAll({
+                    where: {
+                        doctorId: data.doctorId,
+                        date: data.formatedDate
+                    },
+                    attributes: ['timeType', 'date', 'doctorId', 'maxNumber'],
+                    raw: true
+                });
+
+                //convert date
+                // if (existing && existing.length > 0) {
+                //     existing = existing.map(item => {
+                //         item.date = new Date(item.date).getTime();
+                //         return item;
+                //     })
+                // }
+
+                // compare different
+                let toCreate = _.differenceWith(schedule, existing, (a, b) => {
+                    return a.timeType === b.timeType && +a.date === +b.date;
+                })
+
+                //create data
+                if (toCreate && toCreate.length > 0) {
+                    await db.Schedule.bulkCreate(toCreate);
+                }
+                resolve({
+                    errCode: 0,
+                    errMessage: 'OK'
+                })
+            }
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
+let getScheduleByDate = (doctorId, date) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!doctorId || !date) {
+                resolve({
+                    errCode: -1,
+                    errMessage: 'Missing required parameters!'
+                })
+            } else {
+                let dataSchedule = await db.Schedule.findAll({
+                    where: {
+                        doctorId: doctorId,
+                        date: date
+                    },
+                    include: [
+                        { model: db.Allcode, as: 'timeTypeData', attributes: ['valueEn', 'valueVi'] }
+                    ],
+                    raw: false,
+                    nest: true
+                })
+                if (!dataSchedule) dataSchedule = [];
+                resolve({
+                    errCode: 0,
+                    data: dataSchedule
+                })
+            }
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     getTopDoctorHome: getTopDoctorHome,
     getAllDoctors: getAllDoctors,
     saveDetailInforDoctors: saveDetailInforDoctors,
-    getDetailDoctorById: getDetailDoctorById
+    getDetailDoctorById: getDetailDoctorById,
+    bulkCreateSchedule: bulkCreateSchedule,
+    getScheduleByDate: getScheduleByDate
+
 
 }
