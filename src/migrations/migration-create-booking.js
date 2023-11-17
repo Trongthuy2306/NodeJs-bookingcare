@@ -23,9 +23,12 @@ module.exports = {
                 type: Sequelize.INTEGER
             },
             date: {
-                type: Sequelize.DATE
+                type: Sequelize.STRING
             },
             timeType: {
+                type: Sequelize.STRING
+            },
+            token: {
                 type: Sequelize.STRING
             },
             createdAt: {
