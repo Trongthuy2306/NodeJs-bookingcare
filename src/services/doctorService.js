@@ -1,5 +1,4 @@
 
-import { resolveInclude } from 'ejs';
 import db from '../models/index';
 require('dotenv').config();
 import _, { reject } from 'lodash'
@@ -266,6 +265,41 @@ let getScheduleByDate = (doctorId, date) => {
     })
 }
 
+let getExtraInforDoctorById = (inputId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!inputId) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required parameter!'
+                })
+            } else {
+                let data = await db.Doctor_infor.findOne({
+                    where: {
+                        doctorId: inputId
+                    },
+                    attributes: {
+                        exclude: ['id', 'doctorId']
+                    },
+                    include: [
+                        { model: db.Allcode, as: 'priceTypeData', attributes: ['valueEn', 'valueVi'] },
+                        { model: db.Allcode, as: 'provinceTypeData', attributes: ['valueEn', 'valueVi'] },
+                        { model: db.Allcode, as: 'paymentTypeData', attributes: ['valueEn', 'valueVi'] },
+                    ],
+                    raw: false,
+                    nest: true
+                })
+                if (!data) data = {};
+                resolve({
+                    errCode: 0,
+                    data: data
+                })
+            }
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
 
 let getProfileDoctorById = (inputId) => {
     return new Promise(async (resolve, reject) => {
@@ -320,6 +354,46 @@ let getProfileDoctorById = (inputId) => {
 }
 
 
+let getListPatientForDoctor = (doctorId, date) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!doctorId || !date) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required parameters!'
+                })
+            } else {
+                let data = await db.Booking.findAll({
+                    where: {
+                        statusId: 'S2',
+                        doctorId: doctorId,
+                        date: date
+                    },
+                    include: [
+                        {
+                            model: db.User, as: 'patientData',
+                            attributes: ['email', 'firstName', 'address', 'gender'],
+                            include: [
+                                {
+                                    model: db.Allcode, as: 'genderData', attributes: ['valueEn', 'valueVi']
+                                }
+                            ]
+                        },
+                    ],
+                    raw: false,
+                    nest: true
+                })
+                resolve({
+                    errCode: 0,
+                    data: data
+                })
+            }
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
 let checkRequiredFields = (inputData) => {
     let arrFields = ['doctorId', 'contentHTML', 'contentMarkdown', 'action',
         'selectedPrice', 'selectedPayment', 'selectedProvince', 'nameClinic',
@@ -346,7 +420,9 @@ module.exports = {
     getDetailDoctorById: getDetailDoctorById,
     bulkCreateSchedule: bulkCreateSchedule,
     getScheduleByDate: getScheduleByDate,
-    getProfileDoctorById: getProfileDoctorById
+    getExtraInforDoctorById: getExtraInforDoctorById,
+    getProfileDoctorById: getProfileDoctorById,
+    getListPatientForDoctor: getListPatientForDoctor
 
 
 }
