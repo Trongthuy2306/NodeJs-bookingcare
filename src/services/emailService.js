@@ -10,6 +10,7 @@ let sendSimpleEmail = async (dataSend) => {
             user: process.env.EMAIL_APP,
             pass: process.env.EMAIL_APP_PASSWORD,
         },
+        tls: { rejectUnauthorized: false }
     });
     //send mail with define transport object
     let info = await transpoter.sendMail({
@@ -94,6 +95,7 @@ let sendAttachMent = async (dataSend) => {
                     user: process.env.EMAIL_APP,
                     pass: process.env.EMAIL_APP_PASSWORD,
                 },
+                tls: { rejectUnauthorized: false }
             });
             //send mail with define transport object
             let info = await transporter.sendMail({
